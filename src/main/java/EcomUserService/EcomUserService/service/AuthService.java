@@ -2,6 +2,7 @@ package EcomUserService.EcomUserService.service;
 
 import EcomUserService.EcomUserService.dto.UserDto;
 import EcomUserService.EcomUserService.exception.InvalidCredentialException;
+import EcomUserService.EcomUserService.exception.InvalidSessionException;
 import EcomUserService.EcomUserService.exception.InvalidTokenException;
 import EcomUserService.EcomUserService.exception.UserNotFoundException;
 import EcomUserService.EcomUserService.mapper.UserEntityDTOMapper;
@@ -16,12 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import io.jsonwebtoken.security.MacAlgorithm;
 import io.jsonwebtoken.Jwts;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMapAdapter;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDate;
 import java.util.*;
-
+@Service
 public class AuthService {
     private UserRepository userRepository;
     private SessionRepository sessionRepository;
@@ -32,6 +34,14 @@ public class AuthService {
         this.sessionRepository = sessionRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
+
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        return UserEntityDTOMapper.getUserDTOFromUserEntity(user);
+    }
+
 
     public ResponseEntity<List<Session>> getAllSession(){
         List<Session> sessions = sessionRepository.findAll();
@@ -86,17 +96,22 @@ public class AuthService {
         return new ResponseEntity<>(userDto, headers, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> logout(String token, Long userId) {
-        // validations -> token exists, token is not expired, user exists else throw an exception
-        Optional<Session> sessionOptional = sessionRepository.findByTokenAndUser_Id(token, userId);
-        if (sessionOptional.isEmpty()) {
-            return null; //TODO throw exception here
+    public void logout(String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "").trim();
+
+        Session session = sessionRepository
+                .findByToken(token)
+                .orElseThrow(() -> new InvalidSessionException("Invalid token"));
+
+        if (session.getSessionstatus() == SessionStatus.ENDED) {
+            throw new InvalidSessionException("Session already logged out");
         }
-        Session session = sessionOptional.get();
+
         session.setSessionstatus(SessionStatus.ENDED);
         sessionRepository.save(session);
-        return ResponseEntity.ok().build();
     }
+
 
     public UserDto signUp(String email, String password) {
         User user = new User();
@@ -106,16 +121,21 @@ public class AuthService {
         return UserDto.from(savedUser);
     }
 
-    public SessionStatus validate(String token, Long userId) {
-        //TODO check expiry // Jwts Parser -> parse the encoded JWT token to read the claims
+    public SessionStatus validate(String authHeader) {
 
-        //verifying from DB if session exists
-        Optional<Session> sessionOptional = sessionRepository.findByTokenAndUser_Id(token, userId);
-        if (sessionOptional.isEmpty() || sessionOptional.get().getSessionstatus().equals(SessionStatus.ENDED)) {
-            throw new InvalidTokenException("token is invalid");
+        String token = authHeader.replace("Bearer ", "").trim();
+
+        // 1️⃣ Check session existence + status (your existing logic)
+        Session session = sessionRepository.findByToken(token)
+                .orElseThrow(() -> new InvalidTokenException("Invalid token"));
+
+        if (session.getSessionstatus() == SessionStatus.ENDED) {
+            throw new InvalidTokenException("Token logged out");
         }
+
         return SessionStatus.ACTIVE;
     }
+
 }
 /*
     MultiValueMapAdapter is map with single key and multiple values

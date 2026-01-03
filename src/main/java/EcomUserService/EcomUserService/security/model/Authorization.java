@@ -1,4 +1,5 @@
 package EcomUserService.EcomUserService.security.model;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -6,51 +7,123 @@ import lombok.Setter;
 import java.time.Instant;
 
 @Entity
-@Table(name = "`user_authorization`")
+@Table(name = "user_authorization")
 @Getter
 @Setter
-public class Authorization{
-@Id
-@Column
-private String id;
+public class Authorization {
+
+        @Id
+        @Column(length = 100)
+        private String id;
+
+        @Column(nullable = false)
         private String registeredClientId;
+
+        @Column(nullable = false)
         private String principalName;
+
+        @Column(nullable = false)
         private String authorizationGrantType;
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String authorizedScopes;
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String attributes;
+
         @Column(length = 500)
         private String state;
 
+        /* ---------- Authorization Code ---------- */
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String authorizationCodeValue;
+
         private Instant authorizationCodeIssuedAt;
         private Instant authorizationCodeExpiresAt;
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String authorizationCodeMetadata;
 
+        /* ---------- Access Token ---------- */
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String accessTokenValue;
+
         private Instant accessTokenIssuedAt;
-        @Column(name = "access_token_expires_at")
         private Instant accessTokenExpiresAt;
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String accessTokenMetadata;
+
+        @Column(length = 100)
         private String accessTokenType;
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String accessTokenScopes;
 
+        /* ---------- Refresh Token ---------- */
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String refreshTokenValue;
+
         private Instant refreshTokenIssuedAt;
         private Instant refreshTokenExpiresAt;
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String refreshTokenMetadata;
 
+        /* ---------- OIDC ID Token ---------- */
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String oidcIdTokenValue;
+
         private Instant oidcIdTokenIssuedAt;
         private Instant oidcIdTokenExpiresAt;
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
         private String oidcIdTokenMetadata;
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
+        private String oidcIdTokenClaims;
+
+        /* ---------- Device Code ---------- */
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
+        private String deviceCodeValue;
+
+        private Instant deviceCodeIssuedAt;
+        private Instant deviceCodeExpiresAt;
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
+        private String deviceCodeMetadata;
+
+        /* ---------- User Code ---------- */
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
+        private String userCodeValue;
+
+        private Instant userCodeIssuedAt;
+        private Instant userCodeExpiresAt;
+
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
+        private String userCodeMetadata;
 
         public String getId() {
                 return id;
@@ -260,38 +333,6 @@ private String id;
                 this.oidcIdTokenClaims = oidcIdTokenClaims;
         }
 
-        public String getUserCodeValue() {
-                return userCodeValue;
-        }
-
-        public void setUserCodeValue(String userCodeValue) {
-                this.userCodeValue = userCodeValue;
-        }
-
-        public Instant getUserCodeIssuedAt() {
-                return userCodeIssuedAt;
-        }
-
-        public void setUserCodeIssuedAt(Instant userCodeIssuedAt) {
-                this.userCodeIssuedAt = userCodeIssuedAt;
-        }
-
-        public Instant getUserCodeExpiresAt() {
-                return userCodeExpiresAt;
-        }
-
-        public void setUserCodeExpiresAt(Instant userCodeExpiresAt) {
-                this.userCodeExpiresAt = userCodeExpiresAt;
-        }
-
-        public String getUserCodeMetadata() {
-                return userCodeMetadata;
-        }
-
-        public void setUserCodeMetadata(String userCodeMetadata) {
-                this.userCodeMetadata = userCodeMetadata;
-        }
-
         public String getDeviceCodeValue() {
                 return deviceCodeValue;
         }
@@ -324,16 +365,35 @@ private String id;
                 this.deviceCodeMetadata = deviceCodeMetadata;
         }
 
-        private String oidcIdTokenClaims;
+        public String getUserCodeValue() {
+                return userCodeValue;
+        }
 
-        private String userCodeValue;
-        private Instant userCodeIssuedAt;
-        private Instant userCodeExpiresAt;
-        private String userCodeMetadata;
+        public void setUserCodeValue(String userCodeValue) {
+                this.userCodeValue = userCodeValue;
+        }
 
-        private String deviceCodeValue;
-        private Instant deviceCodeIssuedAt;
-        private Instant deviceCodeExpiresAt;
-        private String deviceCodeMetadata;
+        public Instant getUserCodeIssuedAt() {
+                return userCodeIssuedAt;
+        }
 
+        public void setUserCodeIssuedAt(Instant userCodeIssuedAt) {
+                this.userCodeIssuedAt = userCodeIssuedAt;
+        }
+
+        public Instant getUserCodeExpiresAt() {
+                return userCodeExpiresAt;
+        }
+
+        public void setUserCodeExpiresAt(Instant userCodeExpiresAt) {
+                this.userCodeExpiresAt = userCodeExpiresAt;
+        }
+
+        public String getUserCodeMetadata() {
+                return userCodeMetadata;
+        }
+
+        public void setUserCodeMetadata(String userCodeMetadata) {
+                this.userCodeMetadata = userCodeMetadata;
+        }
 }
